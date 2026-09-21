@@ -9,6 +9,14 @@ import type { Gender, QuizAnswers, ScoringResult } from "@/lib/quiz/types";
 import QuestionStep from "./QuestionStep";
 import ResultScreen from "./ResultScreen";
 
+export function resolveGender(responses: Record<string, string>): Gender {
+  const gender = responses.gender;
+  if (gender !== "female" && gender !== "male" && gender !== "other") {
+    throw new Error(`QuizFlow: missing/invalid gender answer: ${gender}`);
+  }
+  return gender;
+}
+
 export default function QuizFlow() {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [step, setStep] = useState<number | "result">(0);
@@ -30,7 +38,7 @@ export default function QuizFlow() {
     if (!selectedOptionId) return;
 
     if (isLastQuestion) {
-      const answers: QuizAnswers = { gender: responses.gender as Gender, responses };
+      const answers: QuizAnswers = { gender: resolveGender(responses), responses };
       setResult(scoreQuiz(answers, questions));
       setStep("result");
       return;
