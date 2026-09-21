@@ -1,0 +1,5 @@
+# Quiz content & data
+
+Quiz questions, dosha-scoring weights, and skin-type→package mappings live as plain TypeScript config in `lib/quiz/questions.ts`, `lib/quiz/scoring.ts`, and `lib/quiz/packages.ts` — never database tables. There's no admin UI in v1, so adding or editing a question, scoring weight, or package is a code change, not data entry. The actual content (real questions, dosha framework, package contents/pricing) is still TBD from the founder — don't invent plausible-sounding Ayurvedic content to fill gaps; use clearly-marked placeholders and ask instead. `lib/quiz/scoring.ts` is pure logic (answers → skin type), so it should have unit tests covering the scoring rules once they exist.
+
+`QuizResponse` is written to the database once, on quiz completion — not incrementally per question. There's no partial-session tracking in v1, which means mid-quiz drop-off can't be measured from the database alone (see the open question in `ayurvedic-skin-quiz.architecture.md`). Don't add incremental/partial-session persistence without checking that open question first — it was a deliberate simplicity trade-off, not an oversight.
