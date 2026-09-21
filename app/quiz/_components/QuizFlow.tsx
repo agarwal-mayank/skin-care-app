@@ -15,7 +15,7 @@ export default function QuizFlow() {
   const [result, setResult] = useState<ScoringResult | null>(null);
 
   if (step === "result") {
-    return result ? <ResultScreen result={result} /> : null;
+    return result ? <ResultScreen result={result} gender={responses.gender as Gender} answers={responses} /> : null;
   }
 
   const currentQuestion = questions[step];
