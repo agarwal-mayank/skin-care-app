@@ -2,20 +2,23 @@
 
 import { useState, type FormEvent } from "react";
 
-import type { ScoringResult } from "@/lib/quiz/types";
+import type { Gender, ScoringResult } from "@/lib/quiz/types";
 
 interface ResultScreenProps {
   result: ScoringResult;
+  gender: Gender;
+  answers: Record<string, string>;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function ResultScreen({ result }: ResultScreenProps) {
+export default function ResultScreen({ result, gender, answers }: ResultScreenProps) {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!EMAIL_PATTERN.test(email)) {
@@ -25,9 +28,27 @@ export default function ResultScreen({ result }: ResultScreenProps) {
     }
 
     setError(null);
-    // TODO(TICKET-4): replace this local stub with a POST to /api/quiz-response
-    // (sending { email, gender, answers, skinType }) once persistence exists.
-    setSubmitted(true);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/quiz-response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, gender, answers, skinType: result.skinType }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(errorBody?.error ?? `Request failed with status ${response.status}`);
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Failed to save quiz response:", err);
+      setError("Something went wrong saving your result. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -55,9 +76,10 @@ export default function ResultScreen({ result }: ResultScreenProps) {
           {error ? <p className="text-sm text-red-600 dark:text-red-400">{error}</p> : null}
           <button
             type="submit"
-            className="flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            disabled={isSubmitting}
+            className="flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-[#383838] disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-[#ccc]"
           >
-            Submit
+            {isSubmitting ? "Submitting…" : "Submit"}
           </button>
         </form>
       )}
