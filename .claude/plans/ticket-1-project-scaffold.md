@@ -243,23 +243,23 @@ N/A.
 
 ## ACCEPTANCE CRITERIA
 
-- [ ] Next.js (App Router) + TypeScript + Tailwind app boots locally with `npm run dev`.
-- [ ] `prisma/schema.prisma` defines `QuizResponse` exactly matching the architecture doc's field list.
-- [ ] `npx prisma migrate dev` runs clean against the founder's real Supabase project and creates the table.
-- [ ] `lib/db.ts` exports a working Prisma client singleton.
-- [ ] `.env` holds real Supabase credentials and is confirmed gitignored; `.env.example` holds placeholders and is committed.
-- [ ] First git commit made, containing the scaffold and schema, with no secrets in it.
+- [x] Next.js (App Router) + TypeScript + Tailwind app boots locally with `npm run dev`.
+- [x] `prisma/schema.prisma` defines `QuizResponse` exactly matching the architecture doc's field list.
+- [x] `npx prisma migrate dev` runs clean against the founder's real Supabase project and creates the table.
+- [x] `lib/db.ts` exports a working Prisma client singleton.
+- [x] `.env` holds real Supabase credentials and is confirmed gitignored; `.env.example` holds placeholders and is committed.
+- [x] First git commit made, containing the scaffold and schema, with no secrets in it.
 
 ---
 
 ## COMPLETION CHECKLIST
 
-- [ ] All tasks completed in order
-- [ ] Each task's validation command passed
-- [ ] `tsc --noEmit` and `npm run lint` both clean
-- [ ] Manual validation (dev server + migration + prisma studio) confirms the full chain works
-- [ ] `.env` confirmed absent from git; `.env.example` confirmed present
-- [ ] Acceptance criteria all met
+- [x] All tasks completed in order
+- [x] Each task's validation command passed
+- [x] `tsc --noEmit` and `npm run lint` both clean
+- [x] Manual validation (dev server + migration + live query) confirms the full chain works — `prisma studio` itself wasn't opened; `prisma migrate status` + a live `db.quizResponse.count()` query through `lib/db.ts` served as the equivalent, automation-friendly check
+- [x] `.env` confirmed absent from git; `.env.example` confirmed present
+- [x] Acceptance criteria all met
 
 ---
 
@@ -280,4 +280,6 @@ N/A.
 
 ## AMENDMENTS
 
-(none yet)
+**2026-09-21 — Implementation complete.** All 5 phases executed and validated; see `.claude/reports/ticket-1-project-scaffold-report.md` for full details. Two load-bearing deviations from the plan as written:
+1. Pinned Prisma to `6.19.3` rather than an unpinned `latest` (which resolved to an unstable `8.0.0-rc.15` and separately to `7.x`, which requires a driver adapter this plan didn't anticipate).
+2. `prisma.config.ts` (a Prisma feature that postdates this plan) points its CLI-facing `datasource.url` at `DIRECT_URL`, not `DATABASE_URL` — Supabase's pooled connection hangs Prisma's CLI schema-engine specifically; the app's actual runtime queries via `lib/db.ts` still use the pooled `DATABASE_URL` as originally intended.
