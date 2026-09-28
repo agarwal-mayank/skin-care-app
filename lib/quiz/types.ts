@@ -26,3 +26,11 @@ export interface ScoringResult {
   skinType: SkinType;
   scores: Record<Dosha, number>;
 }
+
+export interface SkinPackage {
+  id: string;
+  name: string;
+  products: string[];
+  priceInCents: number;
+  currency: string;
+}

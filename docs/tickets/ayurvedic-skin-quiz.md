@@ -6,7 +6,7 @@
 
 A standalone Next.js quiz: gender + skin questions → dosha-based skin type → (eventually) a priced package → email capture → (eventually) Stripe checkout, to test whether ad/social visitors want individualized Ayurvedic skincare enough to complete the flow and attempt a purchase.
 
-**Note before you run any of this:** two of the PRD's open questions are load-bearing for half these tickets — what a "package" actually is (a physical product vs. a route into an existing consultation/program), and how integration via Bolt.new actually works. Tickets 1–5 below don't depend on either and are ready to build now. Tickets 6–8 are real but intentionally left as stubs — planning them in detail today would mean guessing at decisions that are the founder's to make, not the agent's.
+**Note before you run any of this:** two of the PRD's open questions are load-bearing for half these tickets — what a "package" actually is (a physical product vs. a route into an existing consultation/program), and how integration via Bolt.new actually works. Tickets 1–5 below don't depend on either and are ready to build now. Tickets 6–8 are real but intentionally left as stubs — planning them in detail today would mean guessing at decisions that are the founder's to make, not the agent's. *(Update 2026-09-28: the "package" question is resolved — a physical product bundle — so TICKET-6 is now scoped below and TICKET-7 is unblocked; TICKET-8 remains blocked.)*
 
 ## Tickets
 
@@ -45,13 +45,19 @@ A standalone Next.js quiz: gender + skin questions → dosha-based skin type →
 - **Size:** ~150–350 lines
 - **Depends on:** TICKET-4
 
+### TICKET-6 — Package definition + display
+- **Scope / AC:** `SkinPackage` type in `lib/quiz/types.ts`; `lib/quiz/packages.ts` mapping each skin type to one physical product bundle (name, products, price in minor units + currency) — content clearly marked `[PLACEHOLDER]` until the founder provides real bundles/prices; the result screen shows the matching bundle's name, products, and price (no Buy button yet); the result email includes the package. Done when completing the quiz shows and emails the package matching the computed skin type.
+- **Context:** PRD Open Questions (package = physical product bundle, resolved 2026-09-28). `.claude/references/quiz-content.md` (no invented content). Architecture doc "Content-as-config pattern."
+- **Files (est.):** `lib/quiz/types.ts`, `lib/quiz/packages.ts`, `lib/quiz/packages.test.ts`, `app/quiz/_components/ResultScreen.tsx`, `lib/email/quizResultEmail.ts` (+ test)
+- **Size:** ~200–350 lines
+- **Depends on:** TICKET-2, TICKET-3, TICKET-5
+
+## Unblocked — not yet planned in detail
+
+### TICKET-7 — Stripe Checkout + `Order`
+The product-vs-service question is resolved (2026-09-28: physical product bundle → a one-time Stripe Checkout payment). Needs its own detailed plan. Depends on TICKET-6.
+
 ## Blocked — do not plan in detail until the founder resolves these
-
-### TICKET-6 — Package definition + display (BLOCKED)
-Blocked on PRD open question: *"What does 'custom skincare package' actually mean, given the live site sells services, not products?"* The shape of `lib/quiz/packages.ts`, whether there's even a "price" field, and what the result screen shows all depend on the answer (physical product bundle vs. a route into an existing consultation/program).
-
-### TICKET-7 — Stripe Checkout + `Order` (BLOCKED)
-Blocked on the same question — charging for a one-time product and booking a paid service are different Stripe integrations entirely. Also depends on TICKET-6.
 
 ### TICKET-8 — Site integration via Bolt.new (BLOCKED)
 Blocked on PRD open question: *"How does integration via Bolt.new actually work?"* Determines whether this stays a standalone linked app or something embedded — which could also reshape TICKET-3's landing page.
@@ -64,7 +70,7 @@ TICKET-1
         └─→ TICKET-3 ─→ TICKET-4 ─→ TICKET-5
                  (TICKET-4 parallel to TICKET-3 if the save-payload contract is fixed first)
 
-TICKET-6 (blocked) ─→ TICKET-7 (blocked)
+TICKET-5 ─→ TICKET-6 ─→ TICKET-7
 TICKET-8 (blocked, independent of 6/7)
 ```
 
@@ -74,4 +80,6 @@ TICKET-8 (blocked, independent of 6/7)
 - **Wave 2:** TICKET-2
 - **Wave 3:** TICKET-3 (+ TICKET-4 in parallel, once its API contract is agreed)
 - **Wave 4:** TICKET-5
-- **Then:** resolve the two open questions with the founder, and re-slice TICKET-6/7/8 with real detail.
+- **Wave 5:** TICKET-6
+- **Wave 6:** TICKET-7 (plan in detail first)
+- **Then:** resolve the Bolt.new integration question with the founder, and re-slice TICKET-8 with real detail.
