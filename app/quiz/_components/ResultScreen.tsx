@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import type { Gender, ScoringResult } from "@/lib/quiz/types";
+import { formatPrice, getPackageForSkinType } from "@/lib/quiz/packages";
 
 interface ResultScreenProps {
   result: ScoringResult;
@@ -17,6 +18,7 @@ export default function ResultScreen({ result, gender, answers }: ResultScreenPr
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const skinPackage = getPackageForSkinType(result.skinType);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,6 +60,19 @@ export default function ResultScreen({ result, gender, answers }: ResultScreenPr
         <p>Your skin type: {result.skinType}</p>
         <p>Dominant dosha: {result.dominantDosha}</p>
       </div>
+
+      <section className="flex flex-col gap-3 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]">
+        <h3 className="text-lg font-semibold text-black dark:text-zinc-50">Your recommended package</h3>
+        <p className="text-base font-medium text-black dark:text-zinc-50">{skinPackage.name}</p>
+        <ul className="list-disc pl-5 text-base text-zinc-700 dark:text-zinc-300">
+          {skinPackage.products.map((product) => (
+            <li key={product}>{product}</li>
+          ))}
+        </ul>
+        <p className="text-lg font-semibold text-black dark:text-zinc-50">
+          {formatPrice(skinPackage.priceInCents, skinPackage.currency)}
+        </p>
+      </section>
 
       {submitted ? (
         <p className="text-base text-zinc-700 dark:text-zinc-300">Thanks! We&apos;ll be in touch.</p>
