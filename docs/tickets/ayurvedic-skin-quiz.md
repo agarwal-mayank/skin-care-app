@@ -4,7 +4,7 @@
 
 ## Epic summary
 
-A standalone Next.js quiz: gender + skin questions → dosha-based skin type → (eventually) a priced package → email capture → (eventually) Stripe checkout, to test whether ad/social visitors want individualized Ayurvedic skincare enough to complete the flow and attempt a purchase.
+A standalone Next.js quiz: gender + skin questions → dosha-based skin type → (eventually) a priced package → email capture → (eventually) Razorpay checkout, to test whether ad/social visitors want individualized Ayurvedic skincare enough to complete the flow and attempt a purchase.
 
 **Note before you run any of this:** two of the PRD's open questions are load-bearing for half these tickets — what a "package" actually is (a physical product vs. a route into an existing consultation/program), and how integration via Bolt.new actually works. Tickets 1–5 below don't depend on either and are ready to build now. Tickets 6–8 are real but intentionally left as stubs — planning them in detail today would mean guessing at decisions that are the founder's to make, not the agent's. *(Update 2026-09-28: the "package" question is resolved — a physical product bundle — so TICKET-6 is now scoped below and TICKET-7 is unblocked; TICKET-8 remains blocked.)*
 
@@ -54,8 +54,10 @@ A standalone Next.js quiz: gender + skin questions → dosha-based skin type →
 
 ## Unblocked — not yet planned in detail
 
-### TICKET-7 — Stripe Checkout + `Order`
-The product-vs-service question is resolved (2026-09-28: physical product bundle → a one-time Stripe Checkout payment). Needs its own detailed plan. Depends on TICKET-6.
+### TICKET-7 — Razorpay Checkout + `Order`
+**Planned + implemented 2026-09-29:** see `.claude/plans/ticket-7-razorpay-checkout.md` and `.claude/reports/ticket-7-razorpay-checkout-report.md`. The manual test-mode loop is still pending Razorpay keys.
+
+The product-vs-service question is resolved (2026-09-28: physical product bundle → a one-time payment). **Provider decision (2026-09-29): Razorpay**, confirmed by the founder, replacing the earlier Stripe plan (Stripe stays documented as a fallback). Scope decided 2026-09-29: at "Buy Now" collect phone + Indian-format shipping address; one flat price including shipping; Razorpay payment; a warm thank-you screen after payment; an order-confirmation email when the order is paid. No refunds or fulfilment logic. Needs its own detailed plan, which must follow the architecture doc's "Boundaries › Payments" (Razorpay Standard Checkout, both signatures verified server-side, webhook through a tunnel for local testing, and the three swap-safety rules). Depends on TICKET-6.
 
 ## Blocked — do not plan in detail until the founder resolves these
 

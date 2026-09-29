@@ -21,4 +21,33 @@ model QuizResponse {
   answers   Json
   skinType  String
   createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+enum OrderStatus {
+  pending
+  paid
+  failed
+}
+
+model Order {
+  id                String       @id @default(cuid())
+  quizResponseId    String
+  quizResponse      QuizResponse @relation(fields: [quizResponseId], references: [id])
+  paymentProvider   String // "razorpay"
+  providerPaymentId String       @unique // the provider's ORDER id (Razorpay "order_…")
+  status            OrderStatus  @default(pending)
+  amount            Int // minor units (paise), copied from lib/quiz/packages.ts at creation
+  currency          String
+  phone             String // E.164, e.g. +919876543210
+  fullName          String
+  addressLine1      String // flat / house no. / building
+  addressLine2      String // area / street / locality
+  landmark          String?
+  city              String
+  state             String
+  pinCode           String
+  createdAt         DateTime     @default(now())
+
+  @@index([quizResponseId])
 }

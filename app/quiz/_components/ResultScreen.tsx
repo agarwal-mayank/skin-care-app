@@ -5,6 +5,9 @@ import { useState, type FormEvent } from "react";
 import type { Gender, ScoringResult } from "@/lib/quiz/types";
 import { formatPrice, getPackageForSkinType } from "@/lib/quiz/packages";
 
+import CheckoutForm, { type PaidDetails } from "./CheckoutForm";
+import ThankYouScreen from "./ThankYouScreen";
+
 interface ResultScreenProps {
   result: ScoringResult;
   gender: Gender;
@@ -15,9 +18,13 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ResultScreen({ result, gender, answers }: ResultScreenProps) {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  // Set once the QuizResponse is saved — an Order needs it (FK + email), so
+  // "Buy Now" only appears after this.
+  const [quizResponseId, setQuizResponseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [paid, setPaid] = useState<PaidDetails | null>(null);
   const skinPackage = getPackageForSkinType(result.skinType);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -25,7 +32,6 @@ export default function ResultScreen({ result, gender, answers }: ResultScreenPr
 
     if (!EMAIL_PATTERN.test(email)) {
       setError("Please enter a valid email address.");
-      setSubmitted(false);
       return;
     }
 
@@ -44,13 +50,18 @@ export default function ResultScreen({ result, gender, answers }: ResultScreenPr
         throw new Error(errorBody?.error ?? `Request failed with status ${response.status}`);
       }
 
-      setSubmitted(true);
+      const { id } = (await response.json()) as { id: string };
+      setQuizResponseId(id);
     } catch (err) {
       console.error("Failed to save quiz response:", err);
       setError("Something went wrong saving your result. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (paid) {
+    return <ThankYouScreen firstName={paid.firstName} email={paid.email} />;
   }
 
   return (
@@ -74,8 +85,21 @@ export default function ResultScreen({ result, gender, answers }: ResultScreenPr
         </p>
       </section>
 
-      {submitted ? (
-        <p className="text-base text-zinc-700 dark:text-zinc-300">Thanks! We&apos;ll be in touch.</p>
+      {quizResponseId ? (
+        <div className="flex flex-col gap-4">
+          <p className="text-base text-zinc-700 dark:text-zinc-300">Thanks! We&apos;ll be in touch.</p>
+          {checkoutOpen ? (
+            <CheckoutForm quizResponseId={quizResponseId} onPaid={setPaid} />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCheckoutOpen(true)}
+              className="flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-[#383838] disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-[#ccc]"
+            >
+              Buy Now
+            </button>
+          )}
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <label htmlFor="email" className="text-sm font-medium text-black dark:text-zinc-50">

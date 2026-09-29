@@ -27,15 +27,19 @@ describe("getPackageForSkinType", () => {
 
 describe("formatPrice", () => {
   it("formats minor units as a currency amount", () => {
-    expect(formatPrice(9900, "SGD")).toBe("$99.00");
+    expect(formatPrice(9900, "INR")).toBe("₹99.00");
   });
 
   it("keeps cents rather than rounding to whole units", () => {
-    expect(formatPrice(1050, "SGD")).toBe("$10.50");
+    expect(formatPrice(1050, "INR")).toBe("₹10.50");
   });
 
   it("formats zero", () => {
-    expect(formatPrice(0, "SGD")).toBe("$0.00");
+    expect(formatPrice(0, "INR")).toBe("₹0.00");
+  });
+
+  it("uses Indian digit grouping for large amounts", () => {
+    expect(formatPrice(15000000, "INR")).toBe("₹1,50,000.00");
   });
 
   it("throws on an invalid currency code instead of rendering garbage", () => {
