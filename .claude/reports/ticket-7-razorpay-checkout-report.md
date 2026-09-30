@@ -1,6 +1,6 @@
 # Implementation Report — TICKET-7: Razorpay Checkout + `Order`
 
-**Plan**: `.claude/plans/ticket-7-razorpay-checkout.md`   **Branch**: `feature/ticket-7-stripe-checkout`   **Status**: PARTIAL. The code is complete and Levels 1–3 pass. The Level 4 end-to-end test-mode run is still pending, because it needs Razorpay test keys, a webhook secret and zrok from the user.
+**Plan**: `.claude/plans/ticket-7-razorpay-checkout.md`   **Branch**: `feature/ticket-7-razorpay-checkout`   **Status**: PARTIAL. The code is complete and Levels 1–3 pass. The Level 4 end-to-end test-mode run is still pending, because it needs Razorpay test keys, a webhook secret and zrok from the user.
 
 ## Summary
 Built the full checkout path. After the email step, **Buy Now** collects an Indian phone number and shipping address. `/api/checkout` then creates a Razorpay order priced only from `lib/quiz/packages.ts` and a `pending` `Order`, and the client opens Razorpay Standard Checkout. On success, `/api/checkout/verify` checks the HMAC signature and marks the order paid, and the founder's "Option A" thank-you screen is shown. `/api/webhooks/razorpay` verifies the raw-body signature and drives `paid`/`failed`. Both paths go through `lib/orders.ts`, whose conditional `updateMany` makes the transition idempotent and sends the order-confirmation email exactly once.
