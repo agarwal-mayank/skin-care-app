@@ -33,6 +33,8 @@ export async function markOrderPaid(providerPaymentId: string): Promise<MarkOrde
     to: order.quizResponse.email,
     orderId: order.id,
     skinType: order.quizResponse.skinType as SkinType,
+    amount: order.amount,
+    currency: order.currency,
     shipping: {
       fullName: order.fullName,
       addressLine1: order.addressLine1,

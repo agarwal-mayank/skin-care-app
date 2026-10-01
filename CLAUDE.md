@@ -3,7 +3,7 @@
 ## What this is
 A standalone Next.js app that runs a dosha-based (Vata/Pitta/Kapha) Ayurvedic skin quiz: a visitor answers gender + skin questions, gets a computed skin type, sees a matching priced package, gives their email, and can buy via Razorpay Checkout. It's linked from ads/social as its own experience. The live site ([savyasachiayurveda.com](https://savyasachiayurveda.com/)) is built on Bolt.new, and integration will happen through that platform — the exact integration approach (linked vs. embedded) is still an open question (see the PRD), so treat "standalone app" as current-best-guess, not final. Stack: Next.js (App Router) + TypeScript + Tailwind CSS, Prisma + Postgres (Supabase), Razorpay Checkout, Resend for email. See `ayurvedic-skin-quiz.prd.md` (intent) and `ayurvedic-skin-quiz.architecture.md` (decisions) for the full reasoning.
 
-**Status:** TICKETS 1–7 built (quiz flow, save + result email, package display, Razorpay checkout). TICKET-8 (Bolt.new integration) is blocked. Quiz/package content is still `[PLACEHOLDER]`.
+**Status:** TICKETS 1–7 built (quiz flow, save + result email, package display, Razorpay checkout); TICKET-7's Razorpay test-mode end-to-end run is still pending, so treat checkout as unverified. TICKET-8 (Bolt.new integration) is blocked. Quiz/package content is still `[PLACEHOLDER]`.
 
 ## Architecture map
 ```

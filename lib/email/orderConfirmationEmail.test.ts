@@ -17,10 +17,18 @@ const shipping: OrderShippingDetails = {
   pinCode: "560038",
 };
 
+const charged = { amount: 9900, currency: "INR" };
+
 describe("buildOrderConfirmationEmail", () => {
   it.each(SKIN_TYPES)("includes the %s package's name, products and price, and no other package's name", (skinType) => {
-    const content = buildOrderConfirmationEmail({ orderId: "ord_1", skinType, shipping });
     const pkg = getPackageForSkinType(skinType);
+    const content = buildOrderConfirmationEmail({
+      orderId: "ord_1",
+      skinType,
+      amount: pkg.priceInCents,
+      currency: pkg.currency,
+      shipping,
+    });
     const price = formatPrice(pkg.priceInCents, pkg.currency);
 
     for (const body of [content.html, content.text]) {
@@ -35,8 +43,25 @@ describe("buildOrderConfirmationEmail", () => {
     }
   });
 
+  it("shows the amount actually charged, not the package's current config price", () => {
+    const pkg = getPackageForSkinType("dry");
+    const chargedAmount = pkg.priceInCents + 12345;
+    const content = buildOrderConfirmationEmail({
+      orderId: "ord_1",
+      skinType: "dry",
+      amount: chargedAmount,
+      currency: "INR",
+      shipping,
+    });
+
+    for (const body of [content.html, content.text]) {
+      expect(body).toContain(formatPrice(chargedAmount, "INR"));
+      expect(body).not.toContain(formatPrice(pkg.priceInCents, pkg.currency));
+    }
+  });
+
   it("includes the order reference, first name and full shipping address", () => {
-    const content = buildOrderConfirmationEmail({ orderId: "ord_abc123", skinType: "dry", shipping });
+    const content = buildOrderConfirmationEmail({ ...charged, orderId: "ord_abc123", skinType: "dry", shipping });
 
     expect(content.subject).toMatch(/order/i);
     for (const body of [content.html, content.text]) {
@@ -51,6 +76,7 @@ describe("buildOrderConfirmationEmail", () => {
 
   it("omits the landmark line when there is no landmark", () => {
     const content = buildOrderConfirmationEmail({
+      ...charged,
       orderId: "ord_1",
       skinType: "dry",
       shipping: { ...shipping, landmark: null },
@@ -62,6 +88,7 @@ describe("buildOrderConfirmationEmail", () => {
 
   it("HTML-escapes user-supplied values in the html body", () => {
     const content = buildOrderConfirmationEmail({
+      ...charged,
       orderId: "ord_1",
       skinType: "dry",
       shipping: { ...shipping, fullName: "<script>alert(1)</script> X", addressLine1: `"Tom & Jerry's"` },
@@ -73,7 +100,7 @@ describe("buildOrderConfirmationEmail", () => {
   });
 
   it("does not present itself as an invoice", () => {
-    const content = buildOrderConfirmationEmail({ orderId: "ord_1", skinType: "oily", shipping });
+    const content = buildOrderConfirmationEmail({ ...charged, orderId: "ord_1", skinType: "oily", shipping });
 
     for (const body of [content.subject, content.html, content.text]) {
       expect(body).not.toMatch(/invoice|gst|tax/i);

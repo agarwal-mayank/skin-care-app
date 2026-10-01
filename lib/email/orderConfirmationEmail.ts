@@ -8,8 +8,10 @@ import { escapeHtml } from "./escapeHtml";
 // founder-approved thank-you copy (architecture Open questions, "Option A").
 // This is NOT a tax invoice — the business issues GST invoices separately — so
 // don't add invoice/tax wording here.
-// Package + price come from lib/quiz/packages.ts (config); the name and
-// address are user input and MUST be HTML-escaped in the html body.
+// Package name/products come from lib/quiz/packages.ts (config), but the price
+// shown is the amount actually charged (Order.amount/currency) so a later
+// config price change can't misstate it. The name and address are user input
+// and MUST be HTML-escaped in the html body.
 
 export interface OrderShippingDetails {
   fullName: string;
@@ -24,6 +26,9 @@ export interface OrderShippingDetails {
 export interface OrderConfirmationEmailInput {
   orderId: string;
   skinType: SkinType;
+  // The charged amount, from the stored Order — never recomputed from config.
+  amount: number;
+  currency: string;
   shipping: OrderShippingDetails;
 }
 
@@ -46,10 +51,12 @@ function addressLines(shipping: OrderShippingDetails): string[] {
 export function buildOrderConfirmationEmail({
   orderId,
   skinType,
+  amount,
+  currency,
   shipping,
 }: OrderConfirmationEmailInput): OrderConfirmationEmailContent {
   const skinPackage = getPackageForSkinType(skinType);
-  const price = formatPrice(skinPackage.priceInCents, skinPackage.currency);
+  const price = formatPrice(amount, currency);
   const firstName = getFirstName(shipping.fullName);
   const greeting = firstName ? `Thank you, ${firstName}!` : "Thank you!";
   const lines = addressLines(shipping);

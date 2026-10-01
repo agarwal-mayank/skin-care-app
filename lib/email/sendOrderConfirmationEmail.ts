@@ -11,11 +11,12 @@ interface SendOrderConfirmationEmailParams extends OrderConfirmationEmailInput {
 
 // Never throws: the Order is already marked paid by the time this runs, and a
 // failed email must not undo or fail that update. Failures are logged loudly
-// (without the recipient or address — PII).
+// (without the recipient or address — PII). Building the email is inside the
+// try too: a throw there would otherwise 500 the caller after the Order is
+// paid, and retries would see "already-paid" and never send the email.
 export async function sendOrderConfirmationEmail({ to, ...input }: SendOrderConfirmationEmailParams): Promise<void> {
-  const { subject, html, text } = buildOrderConfirmationEmail(input);
-
   try {
+    const { subject, html, text } = buildOrderConfirmationEmail(input);
     const { error } = await resend.emails.send({
       from: FROM_ADDRESS,
       to: [to],
