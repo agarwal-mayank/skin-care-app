@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|MultiEdit|Write|NotebookEdit|Bash|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run -q \"${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_tool_use.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run -q \"${CLAUDE_PROJECT_DIR}/.claude/hooks/stop_gate.py\"",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
