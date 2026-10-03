@@ -81,14 +81,18 @@ def main() -> None:
         root = Path(data.get("cwd") or os.environ.get("CLAUDE_PROJECT_DIR") or ".")
         session_id = re.sub(r"[^\w-]", "_", data.get("session_id") or "unknown")
 
-        files = changed_code_files(root)
-        if not files:
-            sys.exit(0)  # no uncommitted code — nothing to gate
-
         state_dir = root / ".claude" / "hooks" / ".gate-state"
-        state_dir.mkdir(parents=True, exist_ok=True)
         green_file = state_dir / "last-green.sha"
         counter_file = state_dir / f"{session_id}.count"
+
+        files = changed_code_files(root)
+        if not files:
+            # No uncommitted code (e.g. the change was reverted or committed), so any
+            # earlier red streak is over. Reset it, or the next red stop starts mid-count.
+            counter_file.unlink(missing_ok=True)
+            sys.exit(0)  # nothing to gate
+
+        state_dir.mkdir(parents=True, exist_ok=True)
 
         fp = fingerprint(root, files)
         if green_file.is_file() and green_file.read_text().strip() == fp:

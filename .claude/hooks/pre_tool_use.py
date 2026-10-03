@@ -79,6 +79,40 @@ def _is_template(path: str) -> bool:
     return path.endswith(ENV_TEMPLATE_SUFFIXES)
 
 
+GIT_COMMIT = re.compile(r"\bgit\b[^;&|\n]*?\bcommit\b")
+# -m / --message / -am followed by a quoted message.
+COMMIT_MESSAGE_ARG = re.compile(
+    r"""(?<!\S)(-[a-zA-Z]*m|--message)(=|\s+)('[^']*'|"(?:[^"\\]|\\.)*")"""
+)
+# <<EOF ... EOF  /  <<'EOF' ... EOF  (body = group 3)
+HEREDOC = re.compile(r"""<<-?\s*(['"]?)(\w+)\1[^\n]*\n(.*?)\n\s*\2\b""", re.DOTALL)
+
+
+def _strip_commit_message(command: str) -> str:
+    """Drop a git commit's message text, so prose mentioning `.env` isn't read as access.
+
+    Only text bash passes through literally is dropped: single-quoted strings, quoted
+    heredocs, and double-quoted strings or bare heredocs with no `$`/backtick. Anything
+    that could run a command (e.g. "$(cat .env)") stays and is still checked.
+    """
+    if not GIT_COMMIT.search(command):
+        return command
+
+    def message(m):
+        text = m.group(3)
+        if text.startswith('"') and re.search(r"[$`]", text):
+            return m.group(0)
+        return f"{m.group(1)}{m.group(2)}''"
+
+    def heredoc(m):
+        quoted, body = m.group(1), m.group(3)
+        if not quoted and re.search(r"[$`]", body):
+            return m.group(0)
+        return m.group(0).replace(body, "", 1)
+
+    return HEREDOC.sub(heredoc, COMMIT_MESSAGE_ARG.sub(message, command))
+
+
 def is_secret_access(tool_name: str, tool_input: dict) -> bool:
     """True if the call would reach a credential — by file OR by environment."""
     # File tools: check the path argument.
@@ -100,7 +134,7 @@ def is_secret_access(tool_name: str, tool_input: dict) -> bool:
 
     # Bash: the command may name a credential file OR dump the environment.
     if tool_name == "Bash":
-        command = tool_input.get("command", "").replace("\\", "/")
+        command = _strip_commit_message(tool_input.get("command", "")).replace("\\", "/")
         if any(p.search(command) for p in ENV_DUMP):
             return True
         return bool(SECRET_PATH.search(command)) and ".env.example" not in command
