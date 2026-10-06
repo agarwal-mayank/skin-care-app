@@ -9,14 +9,16 @@ const validPayload = {
   skinType: "dry",
 };
 
+const without = (key: keyof typeof validPayload) =>
+  Object.fromEntries(Object.entries(validPayload).filter(([entryKey]) => entryKey !== key));
+
 describe("parseQuizResponsePayload", () => {
   it("returns the payload unchanged when everything is valid", () => {
     expect(parseQuizResponsePayload(validPayload)).toEqual(validPayload);
   });
 
   it("throws when email is missing", () => {
-    const { email: _email, ...rest } = validPayload;
-    expect(() => parseQuizResponsePayload(rest)).toThrow(/email/i);
+    expect(() => parseQuizResponsePayload(without("email"))).toThrow(/email/i);
   });
 
   it("throws when email is malformed", () => {
@@ -31,13 +33,24 @@ describe("parseQuizResponsePayload", () => {
     expect(() => parseQuizResponsePayload({ ...validPayload, gender: 123 })).toThrow(/gender/i);
   });
 
+  it("throws when gender is missing", () => {
+    expect(() => parseQuizResponsePayload(without("gender"))).toThrow(/gender/i);
+  });
+
   it("throws when skinType is not a valid SkinType value", () => {
     expect(() => parseQuizResponsePayload({ ...validPayload, skinType: "combination" })).toThrow(/skinType/i);
   });
 
+  it("throws when skinType is not a string", () => {
+    expect(() => parseQuizResponsePayload({ ...validPayload, skinType: 123 })).toThrow(/skinType/i);
+  });
+
+  it("throws when skinType is missing", () => {
+    expect(() => parseQuizResponsePayload(without("skinType"))).toThrow(/skinType/i);
+  });
+
   it("throws when answers is missing", () => {
-    const { answers: _answers, ...rest } = validPayload;
-    expect(() => parseQuizResponsePayload(rest)).toThrow(/answers/i);
+    expect(() => parseQuizResponsePayload(without("answers"))).toThrow(/answers/i);
   });
 
   it("throws when answers is not an object", () => {
