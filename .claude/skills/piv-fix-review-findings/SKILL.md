@@ -38,11 +38,12 @@ The repo is public, so nothing is filed without the human's yes.
    already fixed.
 2. **De-duplicate:** `gh issue list --state all --search "<key file or symbol>"` per finding. If an issue already
    covers it, comment the new evidence there instead of opening another.
-3. **Draft** each body from `templates/deferred-issue.md` (**read it before drafting**). Related findings in the
-   same file may share one issue.
-4. **Ask once:** show the list of draft titles and labels (and any "comment on #N instead"), then wait. File only
-   the ones approved: `gh issue create --title ... --label ... --body-file <draft>`. Write drafts to a temp file,
-   never into the repo.
+3. **Draft** each body from `templates/deferred-issue.md` (**read it before drafting**; its public-repo rules
+   decide what may go in a draft and which findings must not be filed publicly). Related findings in the same file
+   may share one issue. Write drafts to the session scratchpad (or OS temp dir), never into the repo.
+4. **Ask once:** show each draft's title, labels and a one-line summary of its body (offer the full text), plus
+   any "comment on #N instead" and any finding held back as sensitive, then wait. File only the ones approved:
+   `gh issue create --title ... --label ... --body-file <draft>`, then delete the draft files.
 
 ## 2. Fix the "fix now" set — one at a time
 
@@ -51,6 +52,8 @@ For each:
 2. Make the fix.
 3. Create and run a test that proves it.
 
+If a fix turns out bigger than expected and gets deferred mid-way, take it back through step 1b.
+
 ## 3. Validate
 
 Run the `piv-validate` skill to finalize the fixes.
@@ -58,8 +61,8 @@ Run the `piv-validate` skill to finalize the fixes.
 ## 4. If operating on a PR — commit and push
 
 If these fixes are on a PR branch, **commit them (use `piv-commit`) and push** so the PR reflects the fixes and the
-review can re-run on the updated PR. If nothing was fixed (everything deferred), there's nothing to push — just make
-sure the approved deferred items are filed as issues (step 1b).
+review can re-run on the updated PR. If nothing was fixed (everything deferred), there's nothing to push — just
+confirm the issues approved in step 1b were filed.
 
 ## Output
 

@@ -1,7 +1,13 @@
 # Deferred-finding issue body
 
 Fill this in for each finding triaged as **Defer**. Drop any section that would be empty; don't pad it.
-Live examples: issues #6–#11.
+Live examples: issues #6–#11. Keep the sections in sync with `.github/ISSUE_TEMPLATE/bug.yml`.
+
+**The repo is public: describe the code, never the data.**
+- No real emails, phone numbers, addresses, quiz answers, keys/env values, or local paths (e.g. review files).
+- A finding that is **exploitable** (payment, webhook signature, secrets, PII exposure) is **not drafted for
+  public filing**: flag it to the human as sensitive and let them decide (private fix, or a GitHub security
+  advisory).
 
 **Title:** describe the problem from the user's or maintainer's point of view, not the fix
 (e.g. "Quiz renders a blank screen instead of failing loudly when the result is missing").

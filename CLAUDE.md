@@ -37,7 +37,7 @@ prisma/
 - **Quiz/product content:** don't invent placeholder Ayurvedic content — see `.claude/references/quiz-content.md`.
 - **Build order:** quiz UX first, Stripe checkout second — see `.claude/references/stripe-integration.md`.
 - **Scope discipline:** no admin UI, no user accounts, no order fulfillment/shipping logic, no subscriptions in v1 — per the PRD's non-goals.
-- **Out-of-scope bugs → issues, not drive-by fixes:** if you spot a real problem outside the current task, don't fix it on this branch — draft a GitHub issue (format: `.claude/skills/piv-fix-review-findings/templates/deferred-issue.md`) and ask before filing; the repo is public.
+- **Out-of-scope bugs → issues, not drive-by fixes:** draft a GitHub issue (`.claude/skills/piv-fix-review-findings/templates/deferred-issue.md`) and ask before filing; the repo is public.
 
 ## Commands
 - db: `npx prisma migrate dev` (apply schema changes) · `npx prisma studio` (inspect data)

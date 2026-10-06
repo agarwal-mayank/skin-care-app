@@ -1,5 +1,7 @@
-name: Bug or deferred finding
-description: Something is wrong, or a review finding was deferred to fix later
+# Keep the sections in sync with .claude/skills/piv-fix-review-findings/templates/deferred-issue.md
+# Public repo: describe the code, never real customer data, keys, or an exploitable flaw.
+name: Bug report
+description: Something is wrong (agents file deferred review findings via the CLI with their own labels)
 labels: ["bug"]
 body:
   - type: textarea
