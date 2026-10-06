@@ -1,6 +1,6 @@
 ---
 name: piv-fix-review-findings
-description: Triage code-review findings (manual or AI), fix the ones you choose one at a time with tests, defer/log the rest, then validate — and if the work is on a PR, commit and push so the PR reflects the fixes. Use after a review has produced a list of issues or a review file.
+description: Triage code-review findings (manual or AI), fix the ones you choose one at a time with tests, draft the deferred rest as GitHub issues (filed on approval), then validate — and if the work is on a PR, commit and push so the PR reflects the fixes. Use after a review has produced a list of issues or a review file.
 argument-hint: "[code-review-file-or-issues] [scope / what to fix now vs defer]"
 arguments: [review, scope]
 ---
@@ -21,7 +21,7 @@ Sort the findings before touching code. Honor any direction in the scope argumen
 findings grouped and **ask** rather than fixing everything by default:
 
 - **Fix now (this PR)** — real, in-scope, belongs with this change.
-- **Defer / log as an issue** — real but later; don't bloat this PR. **Create a tracker issue** (or note it) instead
+- **Defer / log as an issue** — real but later; don't bloat this PR. File it as a GitHub issue (step 1b) instead
   of fixing it here.
 - **Needs a human look / manual test** — anything you should inspect or test by hand before trusting it. Flag it,
   don't silently auto-fix.
@@ -30,12 +30,29 @@ findings grouped and **ask** rather than fixing everything by default:
 Don't let the reviewer dictate scope — "real, but later" is a valid and common call; a clean small PR beats a
 sprawling one.
 
+## 1b. Draft the deferred set as issues — file only on approval
+
+The repo is public, so nothing is filed without the human's yes.
+
+1. **Verify each finding still exists** on the current code (re-check the file and line). Drop any that are
+   already fixed.
+2. **De-duplicate:** `gh issue list --state all --search "<key file or symbol>"` per finding. If an issue already
+   covers it, comment the new evidence there instead of opening another.
+3. **Draft** each body from `templates/deferred-issue.md` (**read it before drafting**; its public-repo rules
+   decide what may go in a draft and which findings must not be filed publicly). Related findings in the same file
+   may share one issue. Write drafts to the session scratchpad (or OS temp dir), never into the repo.
+4. **Ask once:** show each draft's title, labels and a one-line summary of its body (offer the full text), plus
+   any "comment on #N instead" and any finding held back as sensitive, then wait. File only the ones approved:
+   `gh issue create --title ... --label ... --body-file <draft>`, then delete the draft files.
+
 ## 2. Fix the "fix now" set — one at a time
 
 For each:
 1. Explain what was wrong.
 2. Make the fix.
 3. Create and run a test that proves it.
+
+If a fix turns out bigger than expected and gets deferred mid-way, take it back through step 1b.
 
 ## 3. Validate
 
@@ -44,10 +61,11 @@ Run the `piv-validate` skill to finalize the fixes.
 ## 4. If operating on a PR — commit and push
 
 If these fixes are on a PR branch, **commit them (use `piv-commit`) and push** so the PR reflects the fixes and the
-review can re-run on the updated PR. If nothing was fixed (everything deferred), there's nothing to push — just make
-sure the deferred items are logged as issues.
+review can re-run on the updated PR. If nothing was fixed (everything deferred), there's nothing to push — just
+confirm the issues approved in step 1b were filed.
 
 ## Output
 
-A short report: what was **fixed** (with its test), what was **deferred/logged** (with issue refs), what needs a
+A short report: what was **fixed** (with its test), what was **deferred** (with the filed issue links, plus any
+drafts the human declined), what needs a
 **manual look/test** — and, if on a PR, the **pushed commit** + confirmation the PR is updated.
