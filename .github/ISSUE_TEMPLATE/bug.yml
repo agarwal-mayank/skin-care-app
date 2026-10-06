@@ -1,0 +1,41 @@
+name: Bug or deferred finding
+description: Something is wrong, or a review finding was deferred to fix later
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What's wrong, and what it means for a visitor or maintainer (1–3 sentences).
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where
+      description: File and line (e.g. `app/quiz/_components/QuizFlow.tsx:25`), plus a short snippet if it helps.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce / why it matters
+      description: Numbered steps, or why it's latent today and what would expose it.
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+      description: Optional. A concrete fix or snippet if you have one.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Observable outcomes that mean this is done, including the test that proves it.
+      value: |
+        - [ ]
+        - [ ] A test covers it
+  - type: input
+    id: source
+    attributes:
+      label: Found in
+      description: Optional. The PR whose review found this (e.g. "review of #3"), or "manual testing".
