@@ -17,7 +17,8 @@
 
 **Mechanical (regex-checkable):**
 - Subject line uses a conventional tag: `feat|fix|docs|refactor|test|chore(scope)?:` — imperative, ≤72 chars.
-- No AI attribution anywhere in the message: no "Generated with", no "Co-Authored-By: Claude".
+- AI-assisted commits end with a `Co-Authored-By: Claude <model> <noreply@anthropic.com>` trailer (the model
+  that did the work), so the history shows which changes an agent wrote.
 
 **Judgment (rubric for the judge):** <!-- #commit-quality -->
 - The message describes THIS diff — what changed and why — not a generic summary. A reader who sees only the
@@ -28,7 +29,7 @@
 
 **Mechanical (regex-checkable):**
 - PR body contains the sections: `## Summary`, `## What changed`, `## Validation`.
-- No AI attribution in the body.
+- AI-assisted PRs end the body with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
 
 **Judgment (rubric for the judge):** <!-- #pr-quality -->
 - The Summary explains WHY this change exists (the intent), not just what it touches.
