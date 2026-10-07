@@ -50,3 +50,6 @@ next-env.d.ts
 
 # local copies of PR review reports (the reviews themselves are posted on each PR)
 .claude/code-reviews/
+
+# python bytecode (the hooks import each other, so it appears in normal use)
+__pycache__/
