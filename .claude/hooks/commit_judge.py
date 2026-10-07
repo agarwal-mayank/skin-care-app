@@ -176,7 +176,8 @@ def run_judge(root: Path, requests: list, diff: str):
     env[RECURSION_ENV] = "1"
     try:
         p = subprocess.run(
-            [claude, "-p", "--model", JUDGE_MODEL, "--tools", "", "--setting-sources", "user",
+            [claude, "-p", "--model", JUDGE_MODEL, "--tools", "", "--strict-mcp-config",
+             "--setting-sources", "user",
              "--no-session-persistence", "--output-format", "json",
              "--max-budget-usd", JUDGE_MAX_BUDGET_USD,
              "--system-prompt", JUDGE_SYSTEM_PROMPT, "--json-schema", json.dumps(VERDICT_SCHEMA)],
