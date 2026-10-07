@@ -7,6 +7,10 @@
         "--script",
         "tooling/mcp/codebase_search.py"
       ]
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=aqigpbgfmgtlhfpancax&read_only=true&features=database,debugging,docs"
     }
   }
 }

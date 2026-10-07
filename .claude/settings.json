@@ -9,6 +9,17 @@
             "command": "uv run -q \"${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_tool_use.py\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "uv run -q \"${CLAUDE_PROJECT_DIR}/.claude/hooks/commit_judge.py\"",
+            "timeout": 420
+          }
+        ]
       }
     ],
     "Stop": [
