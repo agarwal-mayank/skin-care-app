@@ -2,7 +2,7 @@
 name: piv-implement-issue
 description: Implement the fix for a GitHub issue from its RCA artifact (created by piv-investigate-issue) — drift-check the plan, branch, implement, add regression tests, and validate. Use after the investigation artifact exists and you're ready to fix the issue.
 argument-hint: [github-issue-id]
-allowed-tools: Read, Write, Edit, Bash(ruff:*), Bash(mypy:*), Bash(pytest:*), Bash(npm:*), Bash(bun:*)
+allowed-tools: Read, Write, Edit, Bash(npm:*), Bash(npx:*), Bash(git:*), Bash(gh:*)
 ---
 
 # Implement Issue Fix: GitHub Issue #$ARGUMENTS
@@ -86,33 +86,26 @@ Following the "Testing Requirements" from RCA:
 4. Test any new code paths introduced
 
 **Test file location:**
-- Follow project's test structure
-- Mirror the source file location
+- Vitest, colocated next to the source as `<name>.test.ts` (e.g. `lib/checkout/indianAddress.test.ts`)
 - Use descriptive test names
 
 **Test implementation:**
-```python
-def test_issue_$ARGUMENTS_fix():
-    """Test that issue #$ARGUMENTS is fixed."""
-    # Arrange - set up the scenario that caused the bug
-    # Act - execute the code that previously failed
-    # Assert - verify it now works correctly
+```ts
+import { describe, expect, it } from "vitest";
+
+describe("issue #$ARGUMENTS", () => {
+  it("no longer <does the buggy thing>", () => {
+    // Arrange - set up the scenario that caused the bug
+    // Act - execute the code that previously failed
+    // Assert - verify it now works correctly
+  });
+});
 ```
 
 ### 5. Run Validation
 
-Execute validation commands from RCA:
-
-```bash
-# Run linters
-[from RCA validation commands]
-
-# Run type checking
-[from RCA validation commands]
-
-# Run tests
-[from RCA validation commands]
-```
+Run the **`piv-validate`** skill (tests, `next typegen` + `tsc`, eslint, prisma validate), plus any
+extra commands the RCA lists.
 
 **If validation fails:**
 - Fix the issues
