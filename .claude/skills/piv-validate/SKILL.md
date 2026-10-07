@@ -63,7 +63,7 @@ this skill reports; fixing is a separate step.
 
 ## Notes
 
-- The stop gate and commit judge hooks run the same type-check + test command, so a PASS here
-  matches what they enforce.
+- The stop gate, commit judge and `fix-issue.py` run the type-check + test core of this suite (not every
+  command here), so a PASS here covers what they enforce.
 - A checker that cannot fail is worthless. If you change a command, break something on purpose and
   confirm this skill reports ❌.

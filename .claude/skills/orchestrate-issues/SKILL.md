@@ -11,8 +11,8 @@ the named skills and agents below do that. X is a GitHub issue number in this re
 1. **Investigate + implement** — run `python .claude/skills/orchestrate-issues/fix-issue.py X` from the repo
    root as a background command. It runs `piv-investigate-issue` (fresh session), then `piv-implement-issue`
    (new session, working from the RCA), then the real checks in a fix loop (max 3 rounds), and stops with the
-   fix uncommitted on a `fix/issue-X-*` branch. It refuses to start unless the repo is on `main`; if you're not,
-   stop and tell me — don't switch branches with my work in them.
+   fix uncommitted on a `fix/issue-X-*` branch (the script creates it). It refuses to start unless the repo is on
+   an up-to-date, clean `main`; if it isn't, stop and tell me — don't switch, stash or clean with my work in it.
    **Evidence:** exit code 0, `docs/issues/issue-X.md` exists, current branch is not `main`.
 2. **PR** — send a NEW agent: "Run `piv-commit`, then `piv-create-pr`, for the fix to GitHub issue #X
    (<issue title>). The RCA is `docs/issues/issue-X.md`; the commit message must include `Fixes #X`."
