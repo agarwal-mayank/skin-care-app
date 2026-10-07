@@ -1,21 +1,31 @@
 import { describe, expect, it } from "vitest";
 
 import { formatPrice, getPackageForSkinType } from "@/lib/quiz/packages";
+import type { SkinType } from "@/lib/quiz/types";
 
 import { buildQuizResultEmail } from "./quizResultEmail";
 
-const LABELS = {
+// Typed against SkinType so a new or renamed skin type fails to compile here
+// until it gets a label, rather than silently going untested.
+const LABELS: Record<SkinType, string> = {
   dry: "Dry",
   sensitive: "Sensitive",
   oily: "Oily",
-} as const;
+};
+
+// Safe cast: the Record type guarantees the keys are exactly SkinType.
+const SKIN_TYPES = Object.keys(LABELS) as SkinType[];
 
 describe("buildQuizResultEmail", () => {
-  it.each(Object.entries(LABELS))("includes the %s skin type's label and excludes the others", (skinType, label) => {
-    const content = buildQuizResultEmail(skinType as keyof typeof LABELS);
+  it("uses a skin-type subject line", () => {
+    expect(buildQuizResultEmail("dry").subject).toMatch(/skin type/i);
+  });
+
+  it.each(SKIN_TYPES)("includes the %s skin type's label and excludes the others", (skinType) => {
+    const label = LABELS[skinType];
+    const content = buildQuizResultEmail(skinType);
     const otherLabels = Object.values(LABELS).filter((l) => l !== label);
 
-    expect(content.subject).toMatch(/skin type/i);
     expect(content.html).toContain(label);
     expect(content.text).toContain(label);
 
@@ -25,12 +35,11 @@ describe("buildQuizResultEmail", () => {
     }
   });
 
-  it.each(Object.keys(LABELS))(
+  it.each(SKIN_TYPES)(
     "includes the %s skin type's package name, products and price, and no other package's name",
     (skinType) => {
-      const typed = skinType as keyof typeof LABELS;
-      const content = buildQuizResultEmail(typed);
-      const pkg = getPackageForSkinType(typed);
+      const content = buildQuizResultEmail(skinType);
+      const pkg = getPackageForSkinType(skinType);
       const price = formatPrice(pkg.priceInCents, pkg.currency);
 
       for (const body of [content.html, content.text]) {
@@ -41,9 +50,9 @@ describe("buildQuizResultEmail", () => {
         }
       }
 
-      const otherNames = Object.keys(LABELS)
-        .filter((other) => other !== skinType)
-        .map((other) => getPackageForSkinType(other as keyof typeof LABELS).name);
+      const otherNames = SKIN_TYPES.filter((other) => other !== skinType).map(
+        (other) => getPackageForSkinType(other).name,
+      );
 
       for (const otherName of otherNames) {
         expect(content.html).not.toContain(otherName);
