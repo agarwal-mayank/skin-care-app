@@ -57,6 +57,7 @@ ALLOWED_TOOLS = ",".join([
 
 # `git *` / `gh *` above are broad; these are carved back out, since nothing in an
 # unattended run may publish, merge, close or throw work away. Deny beats allow.
+# Prefix matching: a guard against accidents, not a security boundary.
 DENIED_TOOLS = ",".join(
     f"Bash({c}{s})"
     for c in ("git push", "git reset", "git clean", "git checkout --", "git restore",
@@ -125,13 +126,19 @@ def main() -> None:
     dirty = sh("git status --porcelain").stdout.strip()
     if dirty:
         fail(f"working tree isn't clean — commit, stash or remove these first:\n{dirty}")
-    sh(f"git fetch -q origin {BASE_BRANCH}")
-    behind = sh(f"git rev-list --count {BASE_BRANCH}..origin/{BASE_BRANCH}").stdout.strip()
-    if behind not in ("", "0"):
-        fail(f"{BASE_BRANCH} is {behind} commit(s) behind origin — run `git pull` first.")
+    fetch = sh(f"git fetch -q origin {BASE_BRANCH}")
+    if fetch.returncode != 0:
+        fail(f"couldn't fetch origin/{BASE_BRANCH}, so can't confirm it's up to date:\n{fetch.stderr.strip()}")
+    # Behind = stale base; ahead = unpushed commits that would ride into the public PR.
+    counts = sh(f"git rev-list --left-right --count {BASE_BRANCH}...origin/{BASE_BRANCH}")
+    ahead, _, behind = counts.stdout.strip().partition("\t")
+    if counts.returncode != 0 or (ahead, behind) != ("0", "0"):
+        fail(f"{BASE_BRANCH} must match origin/{BASE_BRANCH} (ahead {ahead or '?'}, behind {behind or '?'}) — "
+             f"push or pull first.")
     rca = ROOT / "docs" / "issues" / f"issue-{issue}.md"
     if rca.exists():
-        fail(f"{rca.relative_to(ROOT).as_posix()} already exists (an earlier run?) — remove it first.")
+        fail(f"{rca.relative_to(ROOT).as_posix()} already exists on {BASE_BRANCH} — this issue was "
+             f"already investigated. To re-run, remove it in a commit (git rm, commit, push).")
     view = sh(f"gh issue view {issue} --json number,state,title")
     if view.returncode != 0:
         fail(f"can't read issue #{issue} with gh (installed and logged in? restart the terminal "
@@ -180,7 +187,8 @@ def main() -> None:
     fix_branch = sh("git rev-parse --abbrev-ref HEAD").stdout.strip()
     if fix_branch == BASE_BRANCH:
         fail(f"checks pass but the work is still on {BASE_BRANCH} — expected a fix branch. Stopping.")
-    changed = sh("git status --porcelain --untracked-files=all").stdout.strip()
+    # Don't .strip(): porcelain lines start with a status column that may be a space.
+    changed = sh("git status --porcelain --untracked-files=all").stdout.rstrip("\n")
     # Green checks prove nothing if the implementer stopped without changing code.
     code_changes = [l for l in changed.splitlines() if not l[3:].startswith("docs/issues/")]
     if not code_changes:
